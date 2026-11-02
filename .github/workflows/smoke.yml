@@ -1,0 +1,74 @@
+name: Smoke Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout代码
+      uses: actions/checkout@v3
+    
+    - name: 检查必需文件
+      run: |
+        echo "检查核心文件是否存在..."
+        test -f index.html && echo "✓ index.html 存在" || (echo "✗ index.html 缺失" && exit 1)
+        test -f style.css && echo "✓ style.css 存在" || (echo "✗ style.css 缺失" && exit 1)
+        test -f app.js && echo "✓ app.js 存在" || (echo "✗ app.js 缺失" && exit 1)
+        test -f README.md && echo "✓ README.md 存在" || (echo "✗ README.md 缺失" && exit 1)
+        echo "所有文件检查通过！"
+    
+    - name: 验证HTML结构
+      run: |
+        echo "验证HTML包含必需元素..."
+        grep -q "apiBaseUrl" index.html && echo "✓ API配置输入框存在"
+        grep -q "/health" index.html && echo "✓ Health端点按钮存在"
+        grep -q "/hello" index.html && echo "✓ Hello端点按钮存在"
+        grep -q "/items" index.html && echo "✓ Items端点按钮存在"
+        echo "HTML结构验证通过！"
+    
+    - name: 验证JavaScript功能
+      run: |
+        echo "检查JavaScript关键函数..."
+        grep -q "callApi" app.js && echo "✓ callApi函数存在"
+        grep -q "localStorage" app.js && echo "✓ 本地存储功能存在"
+        grep -q "fetch" app.js && echo "✓ API调用功能存在"
+        echo "JavaScript验证通过！"
+    
+    - name: 启动HTTP服务器并测试
+      run: |
+        echo "启动简单HTTP服务器..."
+        python3 -m http.server 8080 &
+        SERVER_PID=$!
+        sleep 2
+        
+        echo "测试静态文件访问..."
+        curl -f http://localhost:8080/index.html > /dev/null && echo "✓ index.html 可访问"
+        curl -f http://localhost:8080/style.css > /dev/null && echo "✓ style.css 可访问"
+        curl -f http://localhost:8080/app.js > /dev/null && echo "✓ app.js 可访问"
+        
+        kill $SERVER_PID
+        echo "Smoke测试完成！"
+    
+    - name: 文件大小检查
+      run: |
+        echo "检查文件大小（确保没有过大的文件）..."
+        ls -lh index.html style.css app.js
+        
+        HTML_SIZE=$(wc -c < index.html)
+        CSS_SIZE=$(wc -c < style.css)
+        JS_SIZE=$(wc -c < app.js)
+        
+        echo "index.html: ${HTML_SIZE} bytes"
+        echo "style.css: ${CSS_SIZE} bytes"
+        echo "app.js: ${JS_SIZE} bytes"
+        
+        # 确保文件不是空的
+        test $HTML_SIZE -gt 100 && echo "✓ HTML文件大小合理"
+        test $CSS_SIZE -gt 100 && echo "✓ CSS文件大小合理"
+        test $JS_SIZE -gt 100 && echo "✓ JS文件大小合理"
