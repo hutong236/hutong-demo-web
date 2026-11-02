@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hutong Project PM v2 - API Smoke Test</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏘️ Hutong Project PM v2</h1>
+            <p class="subtitle">API Smoke Test Frontend</p>
+        </header>
+
+        <div class="config-section">
+            <label for="apiBaseUrl">API Base URL:</label>
+            <input 
+                type="text" 
+                id="apiBaseUrl" 
+                value="http://localhost:3000"
+                placeholder="http://localhost:3000"
+            >
+            <button id="saveUrl" class="btn-secondary">保存配置</button>
+        </div>
+
+        <div class="actions-section">
+            <h2>API 端点测试</h2>
+            
+            <div class="action-card">
+                <h3>Health Check</h3>
+                <p>检查API服务健康状态</p>
+                <button class="btn-primary" data-endpoint="/health">
+                    调用 GET /health
+                </button>
+            </div>
+
+            <div class="action-card">
+                <h3>Hello Endpoint</h3>
+                <p>测试基本的问候端点</p>
+                <button class="btn-primary" data-endpoint="/hello">
+                    调用 GET /hello
+                </button>
+            </div>
+
+            <div class="action-card">
+                <h3>Items Endpoint</h3>
+                <p>获取项目列表（可选）</p>
+                <button class="btn-primary" data-endpoint="/items">
+                    调用 GET /items
+                </button>
+            </div>
+        </div>
+
+        <div class="response-section">
+            <h2>响应结果</h2>
+            <div class="response-info">
+                <span id="statusBadge" class="status-badge"></span>
+                <span id="timestamp" class="timestamp"></span>
+            </div>
+            <pre id="responseBody"></pre>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
